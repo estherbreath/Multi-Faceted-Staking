@@ -9,5 +9,10 @@ contract ReceiptToken is Ownable(msg.sender), ERC20("Bpss-WETH", "JWETH") {
     function mint(address _to, uint256 _amount) public onlyOwner {
         _mint(_to, _amount);
     }
+
+        function burn(uint256 _amount) public onlyOwner {
+        _burn(address(909), _amount);
+    }
 }
+
 
