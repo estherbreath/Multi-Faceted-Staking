@@ -21,4 +21,9 @@ contract Staker is Ownable(msg.sender) {
         uint256 lastStaked;
         bool allowCompound;
     }
+
+    mapping(address => StakeInfo) public stakers;
+    mapping(address => bool) public hasStaked;
+    address[] public stakerArr;
+
 }
