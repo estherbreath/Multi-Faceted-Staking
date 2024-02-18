@@ -34,6 +34,31 @@ contract Staker is Ownable(msg.sender) {
         lastCompounding = block.timestamp;
     }
 
-    
+        function stake(bool _allowCompound) public payable {
+        StakeInfo storage _staker = stakers[msg.sender];
+
+        (bool success,) = address(weth).call{value: msg.value}("");
+        if (!success) revert("Staking Failed");
+        uint256 _totalStaked = _staker.totalStaked + msg.value;
+        uint256 _totalReward = _calculateReward(_staker);
+
+        _staker.totalStaked = _totalStaked;
+        _staker.totalReward += _totalReward;
+        totalRewards += _totalReward;
+        _staker.lastStaked = block.timestamp;
+        _staker.allowCompound = _allowCompound;
+
+        if (!hasStaked[msg.sender]) {
+            stakerArr.push(msg.sender);
+            hasStaked[msg.sender] = true;
+        }
+
+        if (_allowCompound) {
+            receiptToken.mint(msg.sender, msg.value * 99 / 100);
+            totalFee += msg.value * 1 / 100;
+        } else {
+            receiptToken.mint(msg.sender, msg.value);
+        }
+    }
 
 }
