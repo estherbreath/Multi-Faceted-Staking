@@ -61,4 +61,42 @@ contract Staker is Ownable(msg.sender) {
         }
     }
 
+      function autoCompound() external {
+        // address[] memory _stakerArr = stakerArr;
+        rewardToken.approve(address(uniRouter), type(uint256).max);
+        address[] memory path;
+        path[0] = address(rewardToken);
+        path[1] = uniRouter.WETH();
+
+        for (uint256 i = 0; i < stakerArr.length; i++) {
+            address _addr = stakerArr[i];
+            StakeInfo memory _staker = stakers[_addr];
+            if (!_staker.allowCompound) {
+                continue;
+            }
+
+            _staker.totalReward += _calculateReward(_staker);
+
+            uint256[] memory _amounts =
+                uniRouter.swapExactTokensForTokens(_staker.totalReward, 0, path, address(this), block.timestamp + 86400);
+            uint256 wethAmount = _amounts[1];
+
+            _staker.totalStaked += wethAmount;
+            totalRewards -= _staker.totalReward;
+            _staker.totalReward = 0;
+            _staker.lastStaked = block.timestamp;
+            receiptToken.mint(_addr, wethAmount);
+        }
+
+        uint256 _amountToRewardCompounder = _calculateCompounderReward();
+
+        totalFee -= _amountToRewardCompounder;
+        lastCompounding = block.timestamp;
+
+        weth.transfer(msg.sender, _amountToRewardCompounder);
+
+        rewardToken.approve(address(uniRouter), 0);
+    }
+
+
 }
