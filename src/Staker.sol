@@ -98,5 +98,13 @@ contract Staker is Ownable(msg.sender) {
         rewardToken.approve(address(uniRouter), 0);
     }
 
+     function _calculateReward(StakeInfo memory _info) internal view returns (uint256 _reward) {
+        uint256 apr = 14;
+        uint256 time = 365 days;
+        uint256 _timeSpent = _info.lastStaked > 0 ? block.timestamp - _info.lastStaked : 0;
+
+        _reward = (_info.totalStaked * apr * _timeSpent) / (time * 100);
+    }
+
 
 }
