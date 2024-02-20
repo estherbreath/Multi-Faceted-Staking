@@ -106,5 +106,12 @@ contract Staker is Ownable(msg.sender) {
         _reward = (_info.totalStaked * apr * _timeSpent) / (time * 100);
     }
 
+      function _calculateCompounderReward() internal view returns (uint256 _rew) {
+        uint256 time = 30 days;
+        uint256 duration = block.timestamp < (lastCompounding + time) ? block.timestamp - lastCompounding : time;
+
+        _rew = totalFee * duration / time;
+    }
+
 
 }
