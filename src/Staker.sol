@@ -113,5 +113,14 @@ contract Staker is Ownable(msg.sender) {
         _rew = totalFee * duration / time;
     }
 
+      function addLiquidity(uint256 amountToMint) external payable onlyOwner {
+        rewardToken.mint(address(this), amountToMint);
+        rewardToken.approve(address(uniRouter), amountToMint);
+
+        uniRouter.addLiquidityETH{value: msg.value}(
+            address(rewardToken), amountToMint, 0, 0, address(this), block.timestamp + 86400
+        );
+    }
+
 
 }
